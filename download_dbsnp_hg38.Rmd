@@ -6,8 +6,10 @@ output: "github_document"
 ---
 ## This code shows you how to download dbSNP data for hg38 alignment, which you can use to map rsID to chromosome and position or vice versa.
 ```{bash}
+#download the dbSNP data aligned to hg38
 wget http://fileserve.mrcieu.ac.uk/dbsnp/dbsnp.v153.hg38.vcf.gz 
 wget http://fileserve.mrcieu.ac.uk/dbsnp/dbsnp.v153.hg38.vcf.gz.tbi 
+#create a file is created to rename the chromosomes so that harmonisation to other datasets is easier
 echo -n "NC_000001.11    1
 NC_000002.12    2
 NC_000003.12    3
@@ -33,33 +35,52 @@ NC_000022.11    22
 NC_000023.11    X
 NC_000024.10    Y
 NC_012920.1     MT
-" > hg38_rename_chrom_names.tsv #a file is created to rename the chromosomes so that harmonisation to other datasets is easier.
-bcftools annotate --rename-chrs hg38_rename_chrom_names.tsv --output-type z --output dbSNP_clean.vcf.gz dbsnp.v153.hg38.vcf.gz #this code changes dbSNP chromsome ID to more harmonisable chromsome name 
+" > hg38_rename_chrom_names.tsv
+#this code changes dbSNP chromosome ID to more harmonisable chromosome name 
+bcftools annotate --rename-chrs hg38_rename_chrom_names.tsv --output-type z --output dbSNP_clean.vcf.gz dbsnp.v153.hg38.vcf.gz 
 bcftools index dbSNP_clean.vcf.gz
 ```
 
 ## Here's an example of how to map chromsome and position of UKBB pQTL data to rsID of dbSNP
 ```{r}
-prot <- read.table("ukbb_protein.txt", header=T) #load in ukbb protein data
+#load in ukbb protein data
+prot <- read.table("ukbb_protein.txt", header=T) 
 marker <- prot$ID
-position <- data.frame(do.call("rbind", strsplit(as.character(marker), ":", fixed = TRUE))) #split marker name to chromsome position and alleles
-subset <- position[, 1:2] #take chromosome and position
-subset$X1<- sub("^", "chr", subset$X1) #add chr to chromosome list as this with match dbsnp file
-prot$CHROM <- subset$X1 #add chromosome hg38 to original dataframe
-prot$GENPOS <- subset$X2 #add position hg38 to original dataframe
-vcf <- "dbSNP_clean.vcf.gz" #hg38 alignment 
-tmp <- tempfile() #create temporary file
-subset$X3<- subset$X2 #--region-file runs better with 3 columns than 2, so the position column is duplicated
-rownames(subset) <- NULL #no row names are needed
-colnames(subset) <- NULL #no column names are needed
-write.table(subset, file=paste0("region_file.txt"), row.names=FALSE, col.names=FALSE, quote=FALSE,sep="\t") #create a file for subsetted data
-gwasvcf::set_bcftools("bcftools") #path to bcftools
-bcftools <- "bcftools" #path to bcftools
-cmd <- glue("{bcftools} query -f '%CHROM %POS %ID\n' {vcf} --regions-file region_file.txt > {tmp}.txt") #from chromosome and position to rsid
-system(cmd) #run this on the command line of linux operating system
-map <- fread(glue("{tmp}.txt")) #mapped file created
+#split marker name to chromosome position and alleles
+position <- data.frame(do.call("rbind", strsplit(as.character(marker), ":", fixed = TRUE))) 
+#take chromosome and position
+subset <- position[, 1:2] 
+#add chr to chromosome list as this with match dbsnp file
+subset$X1<- sub("^", "chr", subset$X1) 
+#add chromosome hg38 to original dataframe
+prot$CHROM <- subset$X1
+#add position hg38 to original dataframe
+prot$GENPOS <- subset$X2 
+#hg38 alignment 
+vcf <- "dbSNP_clean.vcf.gz" 
+#create temporary file
+tmp <- tempfile() 
+#--region-file runs better with 3 columns than 2, so the position column is duplicated
+subset$X3<- subset$X2
+#no row names are needed
+rownames(subset) <- NULL
+#no column names are needed
+colnames(subset) <- NULL 
+#create a file for subset data
+write.table(subset, file=paste0("region_file.txt"), row.names=FALSE, col.names=FALSE, quote=FALSE,sep="\t") 
+#path to bcftools
+gwasvcf::set_bcftools("bcftools") 
+bcftools <- "bcftools" 
+#from chromosome and position to rsid
+cmd <- glue("{bcftools} query -f '%CHROM %POS %ID\n' {vcf} --regions-file region_file.txt > {tmp}.txt") 
+#run this on the command line of linux operating system
+system(cmd) 
+#mapped file created
+map <- fread(glue("{tmp}.txt")) 
 colnames(map) <- c("CHROM", "GENPOS", "SNP")
-prot <- merge(prot, map, by="GENPOS") #map rsids into original protein dataframe
-write.table(prot, file=paste0("mapped_", x, ".txt")) #create output of protein dataframe now with rsid from chromosome and position
+#map rsids into original protein dataframe
+prot <- merge(prot, map, by="GENPOS") 
+#create output of protein dataframe now with rsid from chromosome and position
+write.table(prot, file=paste0("mapped_", x, ".txt")) 
 ```
 
