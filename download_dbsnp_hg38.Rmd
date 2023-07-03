@@ -4,7 +4,7 @@ author: "Lily Andrews"
 date: "2023-07-03"
 output: "github_document"
 ---
-##This code shows you how to download dbSNP data for hg38 alignment, which you can use to map rsID to chromosome and position or vice versa.
+## This code shows you how to download dbSNP data for hg38 alignment, which you can use to map rsID to chromosome and position or vice versa.
 ```{bash}
 wget http://fileserve.mrcieu.ac.uk/dbsnp/dbsnp.v153.hg38.vcf.gz 
 wget http://fileserve.mrcieu.ac.uk/dbsnp/dbsnp.v153.hg38.vcf.gz.tbi 
@@ -37,6 +37,7 @@ NC_012920.1     MT
 bcftools annotate --rename-chrs hg38_rename_chrom_names.tsv --output-type z --output dbSNP_clean.vcf.gz dbsnp.v153.hg38.vcf.gz #this code changes dbSNP chromsome ID to more harmonisable chromsome name 
 bcftools index dbSNP_clean.vcf.gz
 ```
+
 ## Here's an example of how to map chromsome and position of UKBB pQTL data to rsID of dbSNP
 ```{r}
 prot <- read.table("ukbb_protein.txt", header=T) #load in ukbb protein data
