@@ -24,6 +24,10 @@ awk 'NR == 1 || $5 == "EUR" {print $1}' all_phase3.psam > EUR_1kg_samples.txt
 #"--keep" only includes the list of IDs, this is set to european but can be changed
 #also make binary files
 plink2 --pfile all_phase3 vzs --chr 1-22 --max-alleles 2  --output-chr 26 --rm-dup exclude-mismatch --keep EUR_1kg_samples.txt --make-bed --out all_phase3_new
+#Load plink 1.90 
+#create file with "." to remove SNPs (remove.txt) which are only "." which are present in this file
+echo "." > remove.txt
+plink --bfile all_phase3_new --extract remove.txt --make-bed --out all_phase3_new.clean
 ```
 
 
