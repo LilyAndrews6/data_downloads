@@ -20,10 +20,10 @@ awk 'NR == 1 || $5 == "EUR" {print $1}' all_phase3.psam > EUR_1kg_samples.txt
 # "--output-chr 26" uses numeric chromosome codes
 # "--max-alleles 2": PLINK 1 binary does not allow multi-allelic variants
 #"--rm-dup" remove duplicates
-#make binary files
-plink2 --pfile all_phase3 vzs --chr 1-22 --max-alleles 2  --output-chr 26 --rm-dup exclude-mismatch --keep EUR_1kg_samples.txt --make-bed --out all_phase3_new
 #"--chr 1-22" select chromosomes and not include sex chromosomes
-#"--keep-fam" only includes the list of IDs, this is set to european but can be changed
+#"--keep" only includes the list of IDs, this is set to european but can be changed
+#also make binary files
+plink2 --pfile all_phase3 vzs --chr 1-22 --max-alleles 2  --output-chr 26 --rm-dup exclude-mismatch --keep EUR_1kg_samples.txt --make-bed --out all_phase3_new
 ```
 
 
