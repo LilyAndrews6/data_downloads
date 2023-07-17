@@ -5,30 +5,25 @@ date: "2023-07-03"
 output: "github_document"
 ---
 ##This code downloads the 1000 genome data from the hg19 release in Plink
-##Ensure plink 1.90 is installed for the following code
+##Ensure plink is installed for the following code
 ```{bash} 
+#Load plink 2.0.0
 #"-O" specifies file name
 wget -O all_phase3.psam "https://www.dropbox.com/s/6ppo144ikdzery5/phase3_corrected.psam?dl=1"
 wget -O all_phase3.pgen.zst "https://www.dropbox.com/s/y6ytfoybz48dc0u/all_phase3.pgen.zst?dl=1"
 wget -O all_phase3.pvar.zst "https://www.dropbox.com/s/odlexvo8fummcvt/all_phase3.pvar.zst?dl=1"
 #decompress file 
 plink2 --zst-decompress all_phase3.pgen.zst > all_phase3.pgen
+#filter for european if required
+awk 'NR == 1 || $5 == "EUR" {print $1}' all_phase3.psam > EUR_1kg_samples.txt
 # "vzs" modifier to directly operate with pvar.zst
 # "--output-chr 26" uses numeric chromosome codes
 # "--max-alleles 2": PLINK 1 binary does not allow multi-allelic variants
 #"--rm-dup" remove duplicates
-plink2 --pfile all_phase3 vzs \ --max-alleles 2 \ --output-chr 26 \  --make-pgen \ --rm-dup exclude-mismatch \
-       --out all_phase3_autosomes
-#filter for european if required
-awk 'NR == 1 || $5 == "EUR" {print $1}' all_phase3.psam > EUR_1kg_samples.txt
 #make binary files
-plink2 --pfile EUR_phase3_autosomes \
-       --make-bed \
-       --out all_phase3.eur
+plink2 --pfile all_phase3 vzs --chr 1-22 --max-alleles 2  --output-chr 26 --rm-dup exclude-mismatch --keep EUR_1kg_samples.txt --make-bed --out all_phase3_new
 #"--chr 1-22" select chromosomes and not include sex chromosomes
 #"--keep-fam" only includes the list of IDs, this is set to european but can be changed
-#create new set of binary files
-plink --bfile all_phase3_new --aec --chr 1-22 --keep-fam EUR_1kg_samples.txt --make-bed --out all_phase3.eur
 ```
 
 
