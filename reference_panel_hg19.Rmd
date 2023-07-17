@@ -5,7 +5,7 @@ date: "2023-07-03"
 output: "github_document"
 ---
 ##This code downloads the 1000 genome data from the hg19 release in Plink
-##Ensure plink is installed for the following code
+##Ensure plink 1.90 is installed for the following code
 ```{bash} 
 #"-O" specifies file name
 wget -O all_phase3.psam "https://www.dropbox.com/s/6ppo144ikdzery5/phase3_corrected.psam?dl=1"
