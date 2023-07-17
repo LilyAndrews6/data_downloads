@@ -27,7 +27,7 @@ plink2 --pfile all_phase3 vzs --chr 1-22 --max-alleles 2  --output-chr 26 --rm-d
 #Load plink 1.90 
 #create file with "." to remove SNPs (remove.txt) which are only "." which are present in this file
 echo "." > remove.txt
-plink --bfile all_phase3_new --extract remove.txt --make-bed --out all_phase3_new.clean
+plink --bfile all_phase3_new --exclude remove.txt --make-bed --out all_phase3_new.clean
 ```
 
 
